@@ -26,7 +26,7 @@ def write_out(title: str, vP = 0, var=None):
     if(len(title)>0):
         print("Adding ", title)
     f.write(title)
-    if vp >0:
+    if vP >0:
         f.write(var)
     f.write("\n")
     f.close()
