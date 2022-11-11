@@ -2,7 +2,7 @@ import argparse
 from ast import parse
 from training import train_encoder_decoder_embeddings, train_encoder_decoder_multidata_embeddings
 from video_preprocessing import computeOpticalFlow, create_data_blobs
-from embeddings_cluster_explore import evaluate_model, evaluate_model_multidata, plot_umap_clusters, plot_umap_clusters_multidata
+from embeddings_cluster_explore import evaluate_model_superuser, evaluate_model, evaluate_model_multidata, plot_umap_clusters, plot_umap_clusters_multidata
 from neural_networks import encoderDecoder
 import torch
 
@@ -34,7 +34,7 @@ def main() -> None:
     parser.add_argument('--plot_save_path', metavar='--plot_save_path', type=str)
     parser.add_argument('--experimental_setup_path', metavar='--experimental_setup_path', type=str)
     parser.add_argument('--labels_store_path', metavar='--labels_store_path', type=str)
-    
+    parser.add_argument('--transcription_path', metavar = '--transcription_path', type=str) 
     args = parser.parse_args()
     
     if args.mode == 'train':
@@ -144,22 +144,42 @@ def main() -> None:
     elif args.mode == 'eval':
         try:
             blobs_folder_path = args.blobs_path
+            print("Folder path: ")
+            print(blobs_folder_path)
         except Exception as e:
             print(e)
         
         try:
             weights_save_path = args.weights_save_path
+            print("Weight save path: ")
+            print(weights_save_path)
         except Exception as e:
             print(e)
         
         try:
+            print("Model dim: ")
+            print(str(int(args.model_dim)))
             model_dim = int(args.model_dim)
         except:
             model_dim = 2048
+
+        try:
+            transcription_path = args.transcription_path
+            print("Transcription path: ")
+            print(transcription_path)
+        except Exception as e:
+            print(e)
+
+        try:
+            experimental_setup_path = args.experimental_setup_path
+            print("Experimental setup path: ")
+            print(experimental_setup_path)
+        except Exception as e:
+            print(e)
             
         model = encoderDecoder(embedding_dim = model_dim)
         model.load_state_dict(torch.load(weights_save_path))
-        evaluate_model(blobs_folder_path = blobs_folder_path, model = model, num_clusters = 10, save_embeddings = False)
+        evaluate_model_superuser(blobs_folder_path = blobs_folder_path, model = model, transcription_path = transcription_path, experimental_setup_path = experimental_setup_path)
 
     else:
         print('Mode is not recognized. Options are optical_flow, data_blobs, train, multidata_train, or eval')

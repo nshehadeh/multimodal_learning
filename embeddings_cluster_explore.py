@@ -22,10 +22,11 @@ from joblib import dump, load
 import re
 
 def store_embeddings_in_dict(blobs_folder_path: str, model: encoderDecoder) -> dict:
+    # print("In Embeddings")
     blobs_folder = os.listdir(blobs_folder_path)
+    # print(blobs_folder)
     blobs_folder = list(filter(lambda x: '.DS_Store' not in x, blobs_folder))
     blobs_folder.sort(key = lambda x: int(x.split('_')[1]))
-
     embeddings_list = []
     gestures_list = []
     user_list = []
@@ -36,7 +37,7 @@ def store_embeddings_in_dict(blobs_folder_path: str, model: encoderDecoder) -> d
     model.eval()
 
     for file in blobs_folder:
-        print('Processing file {}'.format(file))
+       # print('Processing file {}'.format(file))
 
         curr_path = os.path.join(blobs_folder_path, file)
         curr_blob, _ = pickle.load(open(curr_path, 'rb'))
@@ -49,21 +50,26 @@ def store_embeddings_in_dict(blobs_folder_path: str, model: encoderDecoder) -> d
 
             file_list.append(file)
             file = file.split('_')
-            gestures_list.append(file[-1].split('.')[0])
+            gestures_list.append(file[-1].split('.')[0])#int()[1:]))
             user_list.append(file[3][0])
             skill_list.append(skill_dict[file[3][0]])
         except:
             pass
-
+    # print(gestures_list)
     final_dict = {'gesture': gestures_list, 'user': user_list, 'skill': skill_list, 'embeddings': embeddings_list, 'file_list': file_list}
     
     return(final_dict)
 
 def cluster_statistics(blobs_folder_path: str, model: encoderDecoder, num_clusters: int) -> pd.DataFrame:
     results_dict = store_embeddings_in_dict(blobs_folder_path = blobs_folder_path, model = model)
+    print("\n ----- Results Dict -----")
+    for key, item in results_dict.items():
+        print(key, " : ", np.shape(item))
+    #print("\n ----- Skipping K Means -----")
     k_means = KMeans(n_clusters = num_clusters)
-    cluster_indices = k_means.fit_predict(np.array(results_dict['embeddings']).reshape(-1, 2048))
-    results_dict['cluster_indices'] = cluster_indices
+    cluster_indices = k_means.fit_predict(np.array(results_dict['embeddings']).reshape(-1, 512))
+    # results_dict['cluster_indices'] = cluster_indices
+    # print("\n Trying to add cluster indicies array with len: ", len(cluster_indices), " & first item: ", cluster_indices[0])  
     df = pd.DataFrame(results_dict)
     return(df)
 
@@ -76,31 +82,49 @@ def cluster_statistics_multidata(blobs_folder_paths_list: List[str], model: enco
         for key, value in temp_results_dict.items():
             results_dict[key].extend(value)
     k_means = KMeans(n_clusters = num_clusters)
-    cluster_indices = k_means.fit_predict(np.array(results_dict['embeddings']).reshape(-1, 2048))
+    cluster_indices = k_means.fit_predict(np.array(results_dict['embeddings']).reshape(-1, 512))
     results_dict['cluster_indices'] = cluster_indices
     df = pd.DataFrame(results_dict)
     return(df)
 
 def evaluate_model(blobs_folder_path: str, model: encoderDecoder, num_clusters: int, save_embeddings: bool) -> None:
     df = cluster_statistics(blobs_folder_path = blobs_folder_path, model = model, num_clusters = num_clusters)
+    print("-----Head-----")
+    print(df.head())
+    print("-----Tail-----")
+    print(df.tail())
+    print("Unique values For User: ")
+    print(df.user.unique())
+    print("Unique values for Gesture (labels): ")
+    print(df.gesture.unique())
     if save_embeddings:
         print('Saving dataframe.')
         df.to_pickle('./df.p')
-    y = df['gesture'].values.ravel()
-    X = [np.array(v) for v in df['embeddings']]
-    X = np.array(X).reshape(-1, 2048)
-    classifier = XGBClassifier(n_estimators = 1000)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state = 8765)
+    for user in df.user.unique():
+        curr_df = df[df['user']!=user]
+        print("Curr df (user out): ", str(user))
+        print(curr_df.head())
+        y  = curr_df['gesture'].values.ravel()
+        y = y-1
+        y = np.where(y < 6, y, y-1)
+        print("y range: ", np.unique(y))
+        X = [np.array(v) for v in curr_df['embeddings']]
+        print('Shape of X before reshape: ', np.shape(X))
+        X = np.array(X).reshape(-1, 512)
+        print('Shape of X: ', np.shape(X))
+        print('Shape of y: ', np.shape(y))
+        classifier = XGBClassifier(n_estimators = 1000)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, random_state = 8765)
     
-    classifier.fit(X_train, y_train)
-    y_hat = classifier.predict(X_train)
-    y_hat_test = classifier.predict(X_test)
+        classifier.fit(X_train, y_train)
+        y_hat = classifier.predict(X_train)
+        y_hat_test = classifier.predict(X_test)
+         
+        print('Training set classification report, leaving out: ', str(user))
+        print(classification_report(y_train, y_hat))
     
-    print('Training set classification report.')
-    print(classification_report(y_train, y_hat))
-    
-    print('Test set classification report.')
-    print(classification_report(y_test, y_hat_test))
+        print('Test set classification report, leaving out: ', str(user))
+        print(classification_report(y_test, y_hat_test))
 
 def evaluate_model_multidata(blobs_folder_paths_list: str, model: encoderDecoder, num_clusters: int, save_embeddings: bool, classifier_save_path: str = './xgboost_save/multidata_xgboost.joblib') -> None:
     df = cluster_statistics_multidata(blobs_folder_paths_list = blobs_folder_paths_list, model = model, num_clusters = num_clusters)
@@ -109,7 +133,7 @@ def evaluate_model_multidata(blobs_folder_paths_list: str, model: encoderDecoder
         df.to_pickle('./df.p')
     y = df['task'].values.ravel()
     X = [np.array(v) for v in df['embeddings']]
-    X = np.array(X).reshape(-1, 2048)
+    X = np.array(X).reshape(-1, 512)
     classifier = XGBClassifier(n_estimators = 1000)
     X_train, X_test, y_train, y_test = train_test_split(X, y, random_state = 5113)
     
@@ -267,83 +291,86 @@ def label_surgical_study_video(optical_flow_path: str, model: encoderDecoder, la
     f.close()
     print('Labels saved.')
 
-def evaluate_model_superuser(blobs_folder_path: str, model: encoderDecoder, transcriptions_path: str, experimental_setup_path: str) -> None:
-    transcription_file_names = os.listdir(transcriptions_path)
+def evaluate_model_superuser(blobs_folder_path: str, model: encoderDecoder, transcription_path: str, experimental_setup_path: str) -> None:
+    transcription_file_names = os.listdir(transcription_path)
     transcription_file_names = list(filter(lambda x: '.DS_Store' not in x, transcription_file_names))
-
-    transcription_translation_dict = {}
-    count = 0
-    for file in transcription_file_names:
-        curr_file_path = os.path.join(transcriptions_path, file)
-        with open(curr_file_path, 'r') as f:
-            for line in f:
-                line = line.strip('\n').strip()
-                line = line.split(' ')
-                start = line[0]
-                end = line[1]
-                gesture = line[2]
+    print("File Names: ")
+    print(transcription_file_names)
+    for i in range(8):
+        experimental_setup_path = experimental_setup_path+str(i+1)+'_Out/'
+        transcription_translation_dict = {}
+        count = 0
+        for file in transcription_file_names:
+            curr_file_path = os.path.join(transcription_path, file)
+            with open(curr_file_path, 'r') as f:
+                for line in f:
+                    line = line.strip('\n').strip()
+                    line = line.split(' ')
+                    start = line[0]
+                    end = line[1]
+                    gesture = line[2]
                 
-                transcription_name = file.split('.')[0] + '_' + start.zfill(6) + '_' + end.zfill(6) + '.txt'
-                new_name = 'blob_{}_video'.format(count) + '_'.join(file.split('.')[0].split('_')[0:3]) + '_gesture_' + gesture +'.p'
-                new_name = re.sub('Knot_Tying', '', new_name)
-                new_name = re.sub('Needle_Passing', '', new_name)
-                new_name = re.sub('Suturing', '', new_name)
-                transcription_translation_dict[transcription_name] = new_name
-                count += 1
+                    transcription_name = file.split('.')[0] + '_' + start.zfill(6) + '_' + end.zfill(6) + '.txt'
+                    new_name = 'blob_{}_video'.format(count) + '_'.join(file.split('.')[0].split('_')[0:3]) + '_gesture_' + gesture +'.p'
+                    new_name = re.sub('Knot_Tying', '', new_name)
+                    new_name = re.sub('Needle_Passing', '', new_name)
+                    new_name = re.sub('Suturing', '', new_name)
+                    transcription_translation_dict[transcription_name] = new_name
+                    count += 1
 
-    df = cluster_statistics(blobs_folder_path = blobs_folder_path, model = model, num_clusters = 5)
+        df = cluster_statistics(blobs_folder_path = blobs_folder_path, model = model, num_clusters = 5)
     
-    file_to_index_dict = {}
-    file_count = 0
-    for file in df['file_list']:
-        file_to_index_dict[file] = file_count
-        file_count += 1
+        file_to_index_dict = {}
+        file_count = 0
+        for file in df['file_list']:
+            file_to_index_dict[file] = file_count
+            file_count += 1
     
-    y = df['skill'].values.ravel()
-    X = [np.array(v) for v in df['embeddings']]
-    X = np.array(X).reshape(-1, 2048)
+        y = df['skill'].values.ravel()
+        X = [np.array(v) for v in df['embeddings']]
+        X = np.array(X).reshape(-1, 512)
 
-    sampler_list = []
-    iterations = os.listdir(experimental_setup_path)
-    iterations = list(filter(lambda x: '.DS_Store' not in x, iterations))
+        sampler_list = []
+        iterations = os.listdir(experimental_setup_path)
+        iterations = list(filter(lambda x: '.DS_Store' not in x, iterations))
     
-    metrics = {'accuracy': [], 'precision': [], 'recall': [], 'f1-score': [], 'support': []}
-    itr = 0
-    for iter_num in tqdm(iterations):
-        directory_path = os.path.join(experimental_setup_path, iter_num)
+        metrics = {'accuracy': [], 'precision': [], 'recall': [], 'f1-score': [], 'support': []}
+        itr = 0
+        for iter_num in tqdm(iterations):
+            directory_path = os.path.join(experimental_setup_path, iter_num)
         
-        train_indices = []
-        test_indices = []
+            train_indices = []
+            test_indices = []
         
-        with open(os.path.join(directory_path, 'Train.txt')) as f:
-            for line in f:
-                items = line.strip('\n').split('           ')
-                try:
-                    train_indices.append(file_to_index_dict[transcription_translation_dict[items[0]]])
-                except:
-                    pass
-            f.close()
+            with open(os.path.join(directory_path, 'Train.txt')) as f:
+                for line in f:
+                    items = line.strip('\n').split('           ')
+                    try:
+                        train_indices.append(file_to_index_dict[transcription_translation_dict[items[0]]])
+                    except:
+                        pass
+                f.close()
         
-        with open(os.path.join(directory_path, 'Test.txt')) as f:
-            for line in f:
-                items = line.strip('\n').split('           ')
-                try:
-                    test_indices.append(file_to_index_dict[transcription_translation_dict[items[0]]])
-                except:
-                    pass
-            f.close()
+            with open(os.path.join(directory_path, 'Test.txt')) as f:
+                for line in f:
+                    items = line.strip('\n').split('           ')
+                    try:
+                        test_indices.append(file_to_index_dict[transcription_translation_dict[items[0]]])
+                    except:
+                        pass
+                f.close()
 
-        X_train = X[train_indices]
-        y_train = y[train_indices]
-        X_test = X[test_indices]
-        y_test = y[test_indices]
+            X_train = X[train_indices]
+            y_train = y[train_indices]
+            X_test = X[test_indices]
+            y_test = y[test_indices]
 
-        classifier = XGBClassifier(n_estimators = 1000)
-        classifier.fit(X_train, y_train)
+            classifier = XGBClassifier(n_estimators = 1000)
+            classifier.fit(X_train, y_train)
 
-        # y_hat = classifier.predict(X_train)
-        y_hat_test = classifier.predict(X_test)
-        report_test = classification_report(y_test, y_hat_test, output_dict = True)
+            # y_hat = classifier.predict(X_train)
+            y_hat_test = classifier.predict(X_test)
+            report_test = classification_report(y_test, y_hat_test, output_dict = True)
         # metrics['accuracy'] = (metrics['accuracy']*itr + report_test['accuracy'])/(itr + 1)
         # metrics['precision'] = (metrics['precision']*itr + report_test['weighted avg']['precision'])/(itr + 1)
         # metrics['recall'] = (metrics['recall']*itr + report_test['weighted avg']['recall'])/(itr + 1)
@@ -351,20 +378,22 @@ def evaluate_model_superuser(blobs_folder_path: str, model: encoderDecoder, tran
         # metrics['support'] = (metrics['support']*itr + report_test['weighted avg']['support'])/(itr + 1)
         # itr += 1
 
-        metrics['accuracy'].append(report_test['accuracy'])
-        metrics['precision'].append(report_test['weighted avg']['precision'])
-        metrics['recall'].append(report_test['weighted avg']['recall'])
-        metrics['f1-score'].append(report_test['weighted avg']['f1-score'])
-        metrics['support'].append(report_test['weighted avg']['support'])
-        
-    for key, val in metrics.items():
-        print('Mean {} : {} \t \t Std {} : {}'.format(key, np.mean(val), key, np.std(val)))
+            metrics['accuracy'].append(report_test['accuracy'])
+            metrics['precision'].append(report_test['weighted avg']['precision'])
+            metrics['recall'].append(report_test['weighted avg']['recall'])
+            metrics['f1-score'].append(report_test['weighted avg']['f1-score'])
+            metrics['support'].append(report_test['weighted avg']['support'])
+        print("-------Printing output stats for leaving user ", str(i), " out--------")
+        for key, val in metrics.items():
+            print('Mean {} : {} \t \t Std {} : {}'.format(key, np.mean(val), key, np.std(val)))
+        print(metrics.head())
+        print(metrics.tail())
 
 def main():
     blobs_folder_path = '../jigsaw_dataset/Suturing/blobs'
     blobs_folder_paths_list = ['../jigsaw_dataset/Needle_Passing/blobs', '../jigsaw_dataset/Knot_Tying/blobs', '../jigsaw_dataset/Suturing/blobs']
     
-    model = encoderDecoder(embedding_dim = 2048)
+    model = encoderDecoder(embedding_dim = 512)
     model.load_state_dict(torch.load('./weights_save/suturing_weights/suturing_2048.pth'))
 
     # store_embeddings_in_dict(blobs_folder_path = blobs_folder_path, model = model)
