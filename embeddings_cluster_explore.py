@@ -345,7 +345,7 @@ def evaluate_model_superuser(blobs_folder_path: str, model: encoderDecoder, tran
             write_out("", 1, "key: " + str(key) + "item: " + str(item) + "\n")
 
         y = df['skill'].values.ravel()
-        write_out("Skill y values: ", 1, y)
+        write_out("Skill y values: ", 1, str(y))
         X = [np.array(v) for v in df['embeddings']]
         X = np.array(X).reshape(-1, 512)
         write_out("Embeddings shape X: ", 1, str(np.shape(X)))
