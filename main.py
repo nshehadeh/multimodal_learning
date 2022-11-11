@@ -34,7 +34,8 @@ def main() -> None:
     parser.add_argument('--plot_save_path', metavar='--plot_save_path', type=str)
     parser.add_argument('--experimental_setup_path', metavar='--experimental_setup_path', type=str)
     parser.add_argument('--labels_store_path', metavar='--labels_store_path', type=str)
-    parser.add_argument('--transcription_path', metavar = '--transcription_path', type=str) 
+    parser.add_argument('--transcription_path', metavar = '--transcription_path', type=str)
+    parser.add_argument('--plot', metavar = '--plot', type = str)
     args = parser.parse_args()
     
 
@@ -169,18 +170,32 @@ def main() -> None:
             print("Transcription path: ")
             print(transcription_path)
         except Exception as e:
-            print(e)
+            transcription_path = ""
+            print("No transcription setup path")
 
         try:
             experimental_setup_path = args.experimental_setup_path
             print("Experimental setup path: ")
             print(experimental_setup_path)
-        except Exception as e:
-            print(e)
+        except:
+            experimental_setup_path = ""
+            print("No experimental setup path")
+            
+        try:
+            plot = args.plot
+            print("Plot? ")
+            if plot > 0:
+                print("yes")
+        except:
+            plot = 0
             
         model = encoderDecoder(embedding_dim = model_dim)
         model.load_state_dict(torch.load(weights_save_path))
-        evaluate_model_superuser(blobs_folder_path = blobs_folder_path, model = model, transcription_path = transcription_path, experimental_setup_path = experimental_setup_path)
+        if plot > 0:
+            plot_umap_clusters(blobs_folder_path = blobs_folder_path, model = model, plot_store_path = "plots/")
+        else:
+            evaluate_model_superuser(blobs_folder_path = blobs_folder_path, model = model, transcription_path = transcription_path, experimental_setup_path = experimental_setup_path)
+    """
     elif args.mode == 'plot':
         try:
             blobs_folder_path = args.blobs_path
@@ -206,6 +221,7 @@ def main() -> None:
         model = encoderDecoder(embedding_dim = 512)
         model.load_state_dict(torch.load(weights_save_path))
         plot_umap_clusters(blobs_folder_path = blobs_folder_path, model = model, plot_store_path = plot_save_path)
+    """
 
     else:
         print('Mode is not recognized. Options are optical_flow, data_blobs, train, multidata_train, eval, or plot')
