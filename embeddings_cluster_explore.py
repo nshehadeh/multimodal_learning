@@ -364,6 +364,12 @@ def evaluate_model_superuser(blobs_folder_path: str, model: encoderDecoder, tran
             y_train = y[train_indices]
             X_test = X[test_indices]
             y_test = y[test_indices]
+            print("X train size: ")
+            print(np.shape(X_train))
+            print("y train size: ")
+            print(np.shape(y_train))
+            if(len(X_train)==0):
+                return
 
             classifier = XGBClassifier(n_estimators = 1000)
             classifier.fit(X_train, y_train)
@@ -371,6 +377,8 @@ def evaluate_model_superuser(blobs_folder_path: str, model: encoderDecoder, tran
             # y_hat = classifier.predict(X_train)
             y_hat_test = classifier.predict(X_test)
             report_test = classification_report(y_test, y_hat_test, output_dict = True)
+            print("Classification report: ")
+            print(report_test)
         # metrics['accuracy'] = (metrics['accuracy']*itr + report_test['accuracy'])/(itr + 1)
         # metrics['precision'] = (metrics['precision']*itr + report_test['weighted avg']['precision'])/(itr + 1)
         # metrics['recall'] = (metrics['recall']*itr + report_test['weighted avg']['recall'])/(itr + 1)
