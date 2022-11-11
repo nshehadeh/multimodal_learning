@@ -28,7 +28,7 @@ def write_out(title: str, vP = 0, var=None):
     f.write(title)
     if vP >0:
         f.write(var)
-    f.write("\n")
+    # f.write("\n")
     f.close()
 
 
@@ -332,7 +332,7 @@ def evaluate_model_superuser(blobs_folder_path: str, model: encoderDecoder, tran
                     count += 1
         write_out("Transcription_translation_dict")
         for key, item in transcription_translation_dict.items():
-            write_out("", 1, "key: " + str(key) + "item: " + str(item) + "\n")
+            write_out("", 1, "key: " + str(key) + ",  item: " + str(item) + "\n")
         df = cluster_statistics(blobs_folder_path = blobs_folder_path, model = model, num_clusters = 5)
     
         file_to_index_dict = {}
@@ -342,7 +342,7 @@ def evaluate_model_superuser(blobs_folder_path: str, model: encoderDecoder, tran
             file_count += 1
         write_out("File to index dict (from dataframe): ")
         for key, item in file_to_index_dict.items():
-            write_out("", 1, "key: " + str(key) + "item: " + str(item) + "\n")
+            write_out("", 1, "key: " + str(key) + ".  item: " + str(item) + "\n")
 
         y = df['skill'].values.ravel()
         write_out("Skill y values: ", 1, str(y))
@@ -353,6 +353,7 @@ def evaluate_model_superuser(blobs_folder_path: str, model: encoderDecoder, tran
 
         sampler_list = []
         iterations = os.listdir(experimental_setup_path)
+        write_out("Iterations as listed in the experimental setup (should be 1-50: ", 1, iterations)
         iterations = list(filter(lambda x: '.DS_Store' not in x, iterations))
     
         metrics = {'accuracy': [], 'precision': [], 'recall': [], 'f1-score': [], 'support': []}
@@ -362,14 +363,14 @@ def evaluate_model_superuser(blobs_folder_path: str, model: encoderDecoder, tran
         
             train_indices = []
             test_indices = []
-        
+            
+            write_out("Appending train indices now (from file_to_index_dict and transcription_translation_dict): ")
             with open(os.path.join(directory_path, 'Train.txt')) as f:
                 for line in f:
                     items = line.strip('\n').split('           ')
                     print(transcription_translation_dict[items[0]])
                     try:
-                        print("in Df value: ")
-                        print(file_to_index_dict[transcription_translation_dict[items[0]]])
+                        write_out("", 1, str(file_to_index_dict[transcription_translation_dict[items[0]]]))
                         train_indices.append(file_to_index_dict[transcription_translation_dict[items[0]]])
                     except:
                         pass
