@@ -206,7 +206,6 @@ def main() -> None:
         model = encoderDecoder(embedding_dim = 512)
         model.load_state_dict(torch.load(weights_save_path))
         plot_umap_clusters(blobs_folder_path = blobs_folder_path, model = model, plot_store_path = plot_save_path)
-        
 
     else:
         print('Mode is not recognized. Options are optical_flow, data_blobs, train, multidata_train, eval, or plot')
