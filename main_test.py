@@ -155,7 +155,7 @@ def main() -> None:
         try:
             model_dim = int(args.model_dim)
         except:
-            model_dim = 2048
+            model_dim = 512
             
         model = encoderDecoder(embedding_dim = model_dim)
         model.load_state_dict(torch.load(weights_save_path))
