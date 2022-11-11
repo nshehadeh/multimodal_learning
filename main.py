@@ -195,33 +195,6 @@ def main() -> None:
             plot_umap_clusters(blobs_folder_path = blobs_folder_path, model = model, plot_store_path = "plots/")
         else:
             evaluate_model_superuser(blobs_folder_path = blobs_folder_path, model = model, transcription_path = transcription_path, experimental_setup_path = experimental_setup_path)
-    """
-    elif args.mode == 'plot':
-        try:
-            blobs_folder_path = args.blobs_path
-            print("Folder path: ")
-            print(blobs_folder_path)
-        except Exception as e:
-            print(e)
-        
-        try:
-            weights_save_path = args.weights_save_path
-            print("Weight save path: ")
-            print(weights_save_path)
-        except Exception as e:
-            print(e)
-            
-        try:
-            plot_store_path = args.plot_save_path
-            print("Plot save path: ")
-            print([plot_save_path])
-        except Exception as e:
-            print(e)
-        
-        model = encoderDecoder(embedding_dim = 512)
-        model.load_state_dict(torch.load(weights_save_path))
-        plot_umap_clusters(blobs_folder_path = blobs_folder_path, model = model, plot_store_path = plot_save_path)
-    """
 
     else:
         print('Mode is not recognized. Options are optical_flow, data_blobs, train, multidata_train, eval, or plot')
