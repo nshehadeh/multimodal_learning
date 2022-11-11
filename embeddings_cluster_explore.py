@@ -28,6 +28,7 @@ def write_out(title: str, vP = 0, var=None):
     f.write(title)
     if vp >0:
         f.write(var)
+    f.write("\n")
     f.close()
 
 
@@ -331,7 +332,7 @@ def evaluate_model_superuser(blobs_folder_path: str, model: encoderDecoder, tran
                     count += 1
         write_out("Transcription_translation_dict")
         for key, item in transcription_translation_dict.items():
-            write_out("", 1, "key: " + str(key) + "item: " + str(item))
+            write_out("", 1, "key: " + str(key) + "item: " + str(item) + "\n")
         df = cluster_statistics(blobs_folder_path = blobs_folder_path, model = model, num_clusters = 5)
     
         file_to_index_dict = {}
@@ -341,7 +342,7 @@ def evaluate_model_superuser(blobs_folder_path: str, model: encoderDecoder, tran
             file_count += 1
         write_out("File to index dict (from dataframe): ")
         for key, item in file_to_index_dict.items():
-            write_out("", 1, "key: " + str(key) + "item: " + str(item))
+            write_out("", 1, "key: " + str(key) + "item: " + str(item) + "\n")
 
         y = df['skill'].values.ravel()
         write_out("Skill y values: ", 1, y)
