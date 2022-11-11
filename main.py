@@ -35,7 +35,8 @@ def main() -> None:
     parser.add_argument('--experimental_setup_path', metavar='--experimental_setup_path', type=str)
     parser.add_argument('--labels_store_path', metavar='--labels_store_path', type=str)
     parser.add_argument('--transcription_path', metavar = '--transcription_path', type=str)
-    parser.add_argument('--plot', metavar = '--plot', type = str)
+    parser.add_argument('--plot', metavar='--plot', type=str)
+    
     args = parser.parse_args()
     
 
@@ -182,10 +183,12 @@ def main() -> None:
             print("No experimental setup path")
             
         try:
-            plot = args.plot
+            plot = int(args.plot)
             print("Plot? ")
             if plot > 0:
                 print("yes")
+            else:
+                print("no")
         except:
             plot = 0
             
