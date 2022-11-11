@@ -23,7 +23,8 @@ import re
 
 def write_out(title: str, var= None):
     f = open("output/log.txt", "a")
-    f.write("Adding: ", title)
+    print("Adding: ", title)
+    f.write(title)
     f.write(var)
     f.close()
 
