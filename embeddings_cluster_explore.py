@@ -316,6 +316,7 @@ def evaluate_model_superuser(blobs_folder_path: str, model: encoderDecoder, tran
         for file in transcription_file_names:
             curr_file_path = os.path.join(transcription_path, file)
             with open(curr_file_path, 'r') as f:
+                write_out("\n Exploring this file: " + str(curr_file_path))
                 for line in f:
                     line = line.strip('\n').strip()
                     line = line.split(' ')
