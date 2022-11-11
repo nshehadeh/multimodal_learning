@@ -181,7 +181,7 @@ def main() -> None:
         model = encoderDecoder(embedding_dim = model_dim)
         model.load_state_dict(torch.load(weights_save_path))
         evaluate_model_superuser(blobs_folder_path = blobs_folder_path, model = model, transcription_path = transcription_path, experimental_setup_path = experimental_setup_path)
-    elif args.mode = 'plot':
+    elif args.mode == 'plot':
         try:
             blobs_folder_path = args.blobs_path
             print("Folder path: ")
