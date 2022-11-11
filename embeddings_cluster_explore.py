@@ -58,6 +58,8 @@ def store_embeddings_in_dict(blobs_folder_path: str, model: encoderDecoder) -> d
     # print(gestures_list)
     print("Files in df")
     print(file_list)
+    print("test is : blob_623_video_E001_gesture_G1.p in the list (cnt)?")
+    print(file_list.count("blob_623_video_E001_gesture_G1.p"))
     final_dict = {'gesture': gestures_list, 'user': user_list, 'skill': skill_list, 'embeddings': embeddings_list, 'file_list': file_list}
     
     return(final_dict)
