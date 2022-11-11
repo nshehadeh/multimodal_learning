@@ -330,7 +330,7 @@ def evaluate_model_superuser(blobs_folder_path: str, model: encoderDecoder, tran
                     new_name = re.sub('Suturing', '', new_name)
                     transcription_translation_dict[transcription_name] = new_name
                     count += 1
-        write_out("Transcription_translation_dict")
+        write_out("\n Transcription_translation_dict")
         for key, item in transcription_translation_dict.items():
             write_out("", 1, "key: " + str(key) + ",  item: " + str(item) + "\n")
         df = cluster_statistics(blobs_folder_path = blobs_folder_path, model = model, num_clusters = 5)
@@ -340,20 +340,20 @@ def evaluate_model_superuser(blobs_folder_path: str, model: encoderDecoder, tran
         for file in df['file_list']:
             file_to_index_dict[file] = file_count
             file_count += 1
-        write_out("File to index dict (from dataframe): ")
+        write_out("\n File to index dict (from dataframe): ")
         for key, item in file_to_index_dict.items():
             write_out("", 1, "key: " + str(key) + ".  item: " + str(item) + "\n")
 
         y = df['skill'].values.ravel()
-        write_out("Skill y values: ", 1, str(y))
+        write_out("\n Skill y values: ", 1, str(y))
         X = [np.array(v) for v in df['embeddings']]
         X = np.array(X).reshape(-1, 512)
-        write_out("Embeddings shape X: ", 1, str(np.shape(X)))
+        write_out("\n Embeddings shape X: ", 1, str(np.shape(X)))
         
 
         sampler_list = []
         iterations = os.listdir(experimental_setup_path)
-        write_out("Iterations as listed in the experimental setup (should be 1-50: ", 1, str(iterations))
+        write_out("\n Iterations as listed in the experimental setup (should be 1-50: ", 1, str(iterations))
         iterations = list(filter(lambda x: '.DS_Store' not in x, iterations))
     
         metrics = {'accuracy': [], 'precision': [], 'recall': [], 'f1-score': [], 'support': []}
@@ -361,7 +361,7 @@ def evaluate_model_superuser(blobs_folder_path: str, model: encoderDecoder, tran
         write_out("\n Appending train indices now (from file_to_index_dict and transcription_translation_dict)")
         for iter_num in tqdm(iterations):
             directory_path = os.path.join(experimental_setup_path, iter_num)
-            write_out("\n Current path being checked is: ", 1, "experimental_setup_path" + "/" + iter_num)
+            write_out("\n Current path being checked is: ", 1, experimental_setup_path + "/" + iter_num + "/Train.txt")
             train_indices = []
             test_indices = []
         
