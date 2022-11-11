@@ -21,11 +21,12 @@ from barbar import Bar
 from joblib import dump, load
 import re
 
-def write_out(title: str, var= None):
+def write_out(title: str, vP = 0, var=None):
     f = open("output/log.txt", "a")
-    print("Adding: ", title)
+    if(len(title)>0):
+        print("Adding ", title)
     f.write(title)
-    if var != None:
+    if vp >0:
         f.write(var)
     f.close()
 
@@ -330,7 +331,7 @@ def evaluate_model_superuser(blobs_folder_path: str, model: encoderDecoder, tran
                     count += 1
         write_out("Transcription_translation_dict")
         for key, item in transcription_translation_dict.items():
-            write_out("", "key: " + str(key) + "item: " + str(item))
+            write_out("", 1, "key: " + str(key) + "item: " + str(item))
         df = cluster_statistics(blobs_folder_path = blobs_folder_path, model = model, num_clusters = 5)
     
         file_to_index_dict = {}
@@ -340,13 +341,13 @@ def evaluate_model_superuser(blobs_folder_path: str, model: encoderDecoder, tran
             file_count += 1
         write_out("File to index dict (from dataframe): ")
         for key, item in file_to_index_dict.items():
-            write_out("", "key: " + str(key) + "item: " + str(item))
+            write_out("", 1, "key: " + str(key) + "item: " + str(item))
 
         y = df['skill'].values.ravel()
-        write_out("Skill y values: ", y)
+        write_out("Skill y values: ", 1, y)
         X = [np.array(v) for v in df['embeddings']]
         X = np.array(X).reshape(-1, 512)
-        write_out("Embeddings shape X: ", np.shape(X))
+        write_out("Embeddings shape X: ", 1, str(np.shape(X)))
         
 
         sampler_list = []
