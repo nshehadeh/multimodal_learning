@@ -358,14 +358,14 @@ def evaluate_model_superuser(blobs_folder_path: str, model: encoderDecoder, tran
     
         metrics = {'accuracy': [], 'precision': [], 'recall': [], 'f1-score': [], 'support': []}
         itr = 0
+        write_out("\n Appending train indices now (from file_to_index_dict and transcription_translation_dict)")
         for iter_num in tqdm(iterations):
             directory_path = os.path.join(experimental_setup_path, iter_num)
-        
+            write_out("\n Current path being checked is: ", 1, "experimental_setup_path" + "/" + iter_num)
             train_indices = []
             test_indices = []
-            
-            write_out("\n Appending train indices now (from file_to_index_dict and transcription_translation_dict): ")
-            with open(os.path.join(directory_path, '/Train.txt')) as f:
+        
+            with open(os.path.join(directory_path, 'Train.txt')) as f:
                 for line in f:
                     items = line.strip('\n').split('           ')
                     try:
@@ -375,7 +375,7 @@ def evaluate_model_superuser(blobs_folder_path: str, model: encoderDecoder, tran
                         pass
                 f.close()
         
-            with open(os.path.join(directory_path, '/Test.txt')) as f:
+            with open(os.path.join(directory_path, 'Test.txt')) as f:
                 for line in f:
                     items = line.strip('\n').split('           ')
                     try:
