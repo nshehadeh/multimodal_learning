@@ -11,7 +11,7 @@ from xgboost import XGBClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 from sklearn.preprocessing import LabelEncoder
-import umap-learn
+import umap
 import seaborn as sns
 import matplotlib.pyplot as plt
 from multipledispatch import dispatch
