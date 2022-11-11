@@ -21,6 +21,13 @@ from barbar import Bar
 from joblib import dump, load
 import re
 
+def write_out(title: str, var= None):
+    f = open("output/log.txt", "a")
+    f.write("Adding: ", title)
+    f.write(var)
+    f.close()
+
+
 def store_embeddings_in_dict(blobs_folder_path: str, model: encoderDecoder) -> dict:
     # print("In Embeddings")
     blobs_folder = os.listdir(blobs_folder_path)
@@ -56,8 +63,6 @@ def store_embeddings_in_dict(blobs_folder_path: str, model: encoderDecoder) -> d
         except:
             pass
     # print(gestures_list)
-    print("Files in df")
-    print(file_list)
     print("test is : blob_623_video_E001_gesture_G1.p in the list (cnt)?")
     print(file_list.count("blob_623_video_E001_gesture_G1.p"))
     final_dict = {'gesture': gestures_list, 'user': user_list, 'skill': skill_list, 'embeddings': embeddings_list, 'file_list': file_list}
@@ -298,8 +303,8 @@ def label_surgical_study_video(optical_flow_path: str, model: encoderDecoder, la
 def evaluate_model_superuser(blobs_folder_path: str, model: encoderDecoder, transcription_path: str, experimental_setup_path: str) -> None:
     transcription_file_names = os.listdir(transcription_path)
     transcription_file_names = list(filter(lambda x: '.DS_Store' not in x, transcription_file_names))
-    print("File Names: ")
-    print(transcription_file_names)
+    # print("File Names: ")
+    # print(transcription_file_names)
     for i in range(8):
         experimental_setup_path = experimental_setup_path+str(i+1)+'_Out/'
         transcription_translation_dict = {}
@@ -321,7 +326,9 @@ def evaluate_model_superuser(blobs_folder_path: str, model: encoderDecoder, tran
                     new_name = re.sub('Suturing', '', new_name)
                     transcription_translation_dict[transcription_name] = new_name
                     count += 1
-
+        write_out("Transcription_translation_dict")
+        for key, item in transcription_translation_dict.items():
+            write_out("", "key: ", key, "item: ", item)
         df = cluster_statistics(blobs_folder_path = blobs_folder_path, model = model, num_clusters = 5)
     
         file_to_index_dict = {}
@@ -329,9 +336,16 @@ def evaluate_model_superuser(blobs_folder_path: str, model: encoderDecoder, tran
         for file in df['file_list']:
             file_to_index_dict[file] = file_count
             file_count += 1
+        write_out("File to index dict (from dataframe): ")
+        for key, item in file_to_index_dict.items():
+            write_out("", "key: ", key, "item: ", item)
+            
         y = df['skill'].values.ravel()
+        write_out("Skill y values: ", y)
         X = [np.array(v) for v in df['embeddings']]
         X = np.array(X).reshape(-1, 512)
+        write_out("Embeddings shape X: ", np.shape(X))
+        
 
         sampler_list = []
         iterations = os.listdir(experimental_setup_path)
@@ -348,7 +362,6 @@ def evaluate_model_superuser(blobs_folder_path: str, model: encoderDecoder, tran
             with open(os.path.join(directory_path, 'Train.txt')) as f:
                 for line in f:
                     items = line.strip('\n').split('           ')
-                    print("Trying to add from dataframe: ")
                     print(transcription_translation_dict[items[0]])
                     try:
                         print("in Df value: ")
