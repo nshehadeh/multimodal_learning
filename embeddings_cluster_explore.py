@@ -325,7 +325,6 @@ def evaluate_model_superuser(blobs_folder_path: str, model: encoderDecoder, tran
         for file in df['file_list']:
             file_to_index_dict[file] = file_count
             file_count += 1
-    
         y = df['skill'].values.ravel()
         X = [np.array(v) for v in df['embeddings']]
         X = np.array(X).reshape(-1, 512)
@@ -345,6 +344,8 @@ def evaluate_model_superuser(blobs_folder_path: str, model: encoderDecoder, tran
             with open(os.path.join(directory_path, 'Train.txt')) as f:
                 for line in f:
                     items = line.strip('\n').split('           ')
+                    print("Trying to add from dataframe: ")
+                    print(transcription_translation_dict[items[0]])
                     try:
                         train_indices.append(file_to_index_dict[transcription_translation_dict[items[0]]])
                     except:
