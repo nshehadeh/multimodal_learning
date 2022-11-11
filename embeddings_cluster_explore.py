@@ -347,6 +347,8 @@ def evaluate_model_superuser(blobs_folder_path: str, model: encoderDecoder, tran
                     print("Trying to add from dataframe: ")
                     print(transcription_translation_dict[items[0]])
                     try:
+                        print("in Df value: ")
+                        print(file_to_index_dict[transcription_translation_dict[items[0]]])
                         train_indices.append(file_to_index_dict[transcription_translation_dict[items[0]]])
                     except:
                         pass
