@@ -353,7 +353,7 @@ def evaluate_model_superuser(blobs_folder_path: str, model: encoderDecoder, tran
 
         sampler_list = []
         iterations = os.listdir(experimental_setup_path)
-        write_out("Iterations as listed in the experimental setup (should be 1-50: ", 1, iterations)
+        write_out("Iterations as listed in the experimental setup (should be 1-50: ", 1, str(iterations))
         iterations = list(filter(lambda x: '.DS_Store' not in x, iterations))
     
         metrics = {'accuracy': [], 'precision': [], 'recall': [], 'f1-score': [], 'support': []}
