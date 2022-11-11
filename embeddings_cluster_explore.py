@@ -364,11 +364,10 @@ def evaluate_model_superuser(blobs_folder_path: str, model: encoderDecoder, tran
             train_indices = []
             test_indices = []
             
-            write_out("Appending train indices now (from file_to_index_dict and transcription_translation_dict): ")
-            with open(os.path.join(directory_path, 'Train.txt')) as f:
+            write_out("\n Appending train indices now (from file_to_index_dict and transcription_translation_dict): ")
+            with open(os.path.join(directory_path, '/Train.txt')) as f:
                 for line in f:
                     items = line.strip('\n').split('           ')
-                    print(transcription_translation_dict[items[0]])
                     try:
                         write_out("", 1, str(file_to_index_dict[transcription_translation_dict[items[0]]]))
                         train_indices.append(file_to_index_dict[transcription_translation_dict[items[0]]])
@@ -376,7 +375,7 @@ def evaluate_model_superuser(blobs_folder_path: str, model: encoderDecoder, tran
                         pass
                 f.close()
         
-            with open(os.path.join(directory_path, 'Test.txt')) as f:
+            with open(os.path.join(directory_path, '/Test.txt')) as f:
                 for line in f:
                     items = line.strip('\n').split('           ')
                     try:
