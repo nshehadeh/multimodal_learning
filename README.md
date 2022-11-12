@@ -36,6 +36,8 @@ Make sure the code started running OK (it should say 'Rescaling videos; Processi
 ### Come up with your own command for evaluation. Look at the parameters that are required in main.py (lines 144-162) and see what needs to be filled in, and what parameters are used by default. 
 
 <code>python3 main.py --mode 'eval' --blobs_path JIGSAWS/Suturing/blobs --weights_save_path models/multimodal_Knot_Tying.pth --model_dim 512 --experimental_setup_path JIGSAWS/Experimental_setup/Suturing/Balanced/GestureClassification/UserOut/ --transcription_path JIGSAWS/Suturing/transcriptions/
+
+
 <code>python3 main.py --mode 'eval' --blobs_path JIGSAWS/Suturing/blobs --weights_save_path models/multimodal_Knot_Tying.pth --model_dim 512 --plot 1
 
 
