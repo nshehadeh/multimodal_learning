@@ -112,7 +112,7 @@ def evaluate_model(blobs_folder_path: str, model: encoderDecoder, num_clusters: 
     print(df.gesture.unique())
     if save_embeddings:
         print('Saving dataframe.')
-        df.to_pickle('./df.p')
+        df.to_pickle('./df.p') 
     for user in df.user.unique():
         curr_df = df[df['user']!=user]
         print("Curr df (user out): ", str(user))
